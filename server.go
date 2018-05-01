@@ -1,6 +1,7 @@
 package fio
 
 import (
+	"crypto/tls"
 	"log"
 	"net"
 
@@ -8,29 +9,46 @@ import (
 )
 
 type Server struct {
-	session quic.Session
-	proxy   proxy
-	socks5  socks5
+	lis    quic.Listener
+	proxy  proxy
+	socks5 socks5
 }
 
-func NewServer(listenAddr string) (*Server, error) {
-	session, err := quic.DialAddr(listenAddr, nil, nil)
+func NewServer(listenAddr string, tlsCfg *tls.Config) (*Server, error) {
+	lis, err := quic.ListenAddr(listenAddr, tlsCfg, &quic.Config{
+		MaxIncomingStreams:                    65535,
+		KeepAlive:                             true,
+		MaxReceiveStreamFlowControlWindow:     100 * (1 << 20),
+		MaxReceiveConnectionFlowControlWindow: 1000 * (1 << 20),
+	})
 	if err != nil {
 		return nil, err
 	}
 	return &Server{
-		session: session,
+		lis: lis,
 	}, nil
 }
 
 func (c *Server) Run() {
 	for {
-		steam, err := c.session.AcceptStream()
+		session, err := c.lis.Accept()
 		if err != nil {
 			log.Println(err)
 			continue
 		}
-		go c.handleStream(steam)
+		log.Printf("new session: %s\n", session.RemoteAddr())
+		go c.handleSession(session)
+	}
+}
+
+func (c *Server) handleSession(session quic.Session) {
+	for {
+		stream, err := session.AcceptStream()
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		go c.handleStream(stream)
 	}
 }
 

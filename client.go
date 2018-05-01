@@ -1,6 +1,7 @@
 package fio
 
 import (
+	"crypto/tls"
 	"log"
 	"net"
 
@@ -14,8 +15,13 @@ type Client struct {
 	lis     net.Listener
 }
 
-func NewClient(listenAddr, remoteAddr string) (*Client, error) {
-	session, err := quic.DialAddr(remoteAddr, nil, nil)
+func NewClient(listenAddr, remoteAddr string, tlsCfg *tls.Config) (*Client, error) {
+	session, err := quic.DialAddr(remoteAddr, tlsCfg, &quic.Config{
+		MaxIncomingStreams:                    65535,
+		KeepAlive:                             true,
+		MaxReceiveStreamFlowControlWindow:     100 * (1 << 20),
+		MaxReceiveConnectionFlowControlWindow: 1000 * (1 << 20),
+	})
 	if err != nil {
 		return nil, err
 	}

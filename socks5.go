@@ -29,7 +29,7 @@ func (s socks5) format(format string) string {
 func (s socks5) handshake(rw io.ReadWriter, buf []byte) error {
 	_, err := io.ReadAtLeast(rw, buf, 1)
 	if err != nil {
-		return errors.Wrap(err, s.format(""))
+		return errors.Wrap(err, s.format("read version error"))
 	}
 	version := buf[0]
 	if version != socks5Version {
@@ -40,7 +40,7 @@ func (s socks5) handshake(rw io.ReadWriter, buf []byte) error {
 }
 
 func (s socks5) getAddr(rw io.ReadWriter, buf []byte) (string, error) {
-	_, err := io.ReadAtLeast(rw, buf, 263)
+	_, err := io.ReadAtLeast(rw, buf, 5)
 	if err != nil {
 		return "", errors.Wrap(err, s.format(""))
 	}

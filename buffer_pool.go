@@ -20,7 +20,7 @@ func putPacketBuffer(buf *[]byte) {
 
 func init() {
 	bufferPool.New = func() interface{} {
-		b := make([]byte, 0, bufferCap)
+		b := make([]byte, bufferCap)
 		return &b
 	}
 }
