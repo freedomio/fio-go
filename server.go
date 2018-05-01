@@ -53,6 +53,7 @@ func (c *Server) handleSession(session quic.Session) {
 }
 
 func (c *Server) handleStream(stream quic.Stream) {
+	defer stream.Close()
 	buf1 := getPacketBuffer()
 	defer putPacketBuffer(buf1)
 
@@ -66,6 +67,7 @@ func (c *Server) handleStream(stream quic.Stream) {
 		log.Println(err)
 		return
 	}
+	defer conn.Close()
 	buf2 := getPacketBuffer()
 	defer putPacketBuffer(buf2)
 

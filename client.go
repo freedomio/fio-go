@@ -47,6 +47,7 @@ func (c *Client) Run() {
 }
 
 func (c *Client) handleConn(conn net.Conn) {
+	defer conn.Close()
 	buf1 := getPacketBuffer()
 	defer putPacketBuffer(buf1)
 	err := c.socks5.handshake(conn, *buf1)
@@ -66,6 +67,7 @@ func (c *Client) handleConn(conn net.Conn) {
 		log.Println(err)
 		return
 	}
+	defer stream.Close()
 	err = c.proxy.transfer(conn, stream, *buf1, *buf2)
 	if err != nil {
 		log.Println(err)
