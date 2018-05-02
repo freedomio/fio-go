@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"log"
 	"net"
+	"time"
 
 	"github.com/lucas-clemente/quic-go"
 )
@@ -17,7 +18,7 @@ type Server struct {
 func NewServer(listenAddr string, tlsCfg *tls.Config) (*Server, error) {
 	lis, err := quic.ListenAddr(listenAddr, tlsCfg, &quic.Config{
 		MaxIncomingStreams:                    65535,
-		KeepAlive:                             true,
+		IdleTimeout:                           365 * 24 * time.Hour,
 		MaxReceiveStreamFlowControlWindow:     100 * (1 << 20),
 		MaxReceiveConnectionFlowControlWindow: 1000 * (1 << 20),
 	})

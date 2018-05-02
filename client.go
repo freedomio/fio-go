@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"log"
 	"net"
+	"time"
 
 	"github.com/lucas-clemente/quic-go"
 )
@@ -18,7 +19,7 @@ type Client struct {
 func NewClient(listenAddr, remoteAddr string, tlsCfg *tls.Config) (*Client, error) {
 	session, err := quic.DialAddr(remoteAddr, tlsCfg, &quic.Config{
 		MaxIncomingStreams:                    65535,
-		KeepAlive:                             true,
+		IdleTimeout:                           365 * 24 * time.Hour,
 		MaxReceiveStreamFlowControlWindow:     100 * (1 << 20),
 		MaxReceiveConnectionFlowControlWindow: 1000 * (1 << 20),
 	})
