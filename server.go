@@ -10,9 +10,7 @@ import (
 )
 
 type Server struct {
-	lis    quic.Listener
-	proxy  proxy
-	socks5 socks5
+	lis quic.Listener
 }
 
 func NewServer(listenAddr string, tlsCfg *tls.Config) (*Server, error) {
@@ -57,13 +55,17 @@ func (c *Server) handleStream(stream quic.Stream) {
 	defer stream.Close()
 	buf1 := getPacketBuffer()
 	defer putPacketBuffer(buf1)
-
-	addr, err := c.socks5.getAddr(stream, *buf1)
+	err := defaultSocks5.handshake(stream, *buf1)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	err = c.socks5.ok(stream)
+	addr, err := defaultSocks5.getAddr(stream, *buf1)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = defaultSocks5.ok(stream)
 	if err != nil {
 		log.Println(err)
 		return
@@ -77,7 +79,7 @@ func (c *Server) handleStream(stream quic.Stream) {
 	buf2 := getPacketBuffer()
 	defer putPacketBuffer(buf2)
 
-	err = c.proxy.transfer(stream, conn, *buf1, *buf2)
+	err = defaultProxy.transfer(stream, conn, *buf1, *buf2)
 	if err != nil {
 		log.Println(err)
 		return

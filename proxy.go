@@ -6,6 +6,8 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+var defaultProxy proxy
+
 type proxy struct{}
 
 func (p proxy) transfer(src, dst io.ReadWriter, buf1, buf2 []byte) error {

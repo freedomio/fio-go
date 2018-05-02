@@ -20,6 +20,8 @@ const (
 	atypeIPV6   = 0x04
 )
 
+var defaultSocks5 socks5
+
 type socks5 struct{}
 
 func (s socks5) format(format string) string {
