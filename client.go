@@ -68,7 +68,7 @@ func (c *Client) handleConn(conn net.Conn) {
 	// }
 	buf2 := getPacketBuffer()
 	defer putPacketBuffer(buf2)
-	stream, err := c.session.OpenStream()
+	stream, err := c.session.OpenStreamSync()
 	if err != nil {
 		log.Println(err)
 		return
