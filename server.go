@@ -62,6 +62,11 @@ func (c *Server) handleStream(stream quic.Stream) {
 		log.Println(err)
 		return
 	}
+	err = c.socks5.ok(stream)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	conn, err := net.Dial("tcp", addr)
 	if err != nil {
 		log.Println(err)

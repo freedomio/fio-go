@@ -55,11 +55,16 @@ func (c *Client) handleConn(conn net.Conn) {
 		log.Println(err)
 		return
 	}
-	err = c.socks5.ok(conn)
-	if err != nil {
-		log.Println(err)
-		return
-	}
+	// _, err = c.socks5.getAddr(conn, *buf1)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	return
+	// }
+	// err = c.socks5.ok(conn)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	return
+	// }
 	buf2 := getPacketBuffer()
 	defer putPacketBuffer(buf2)
 	stream, err := c.session.OpenStream()
