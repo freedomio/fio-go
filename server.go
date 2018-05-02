@@ -78,7 +78,6 @@ func (c *Server) handleStream(stream quic.Stream) {
 	defer conn.Close()
 	buf2 := getPacketBuffer()
 	defer putPacketBuffer(buf2)
-
 	err = defaultProxy.transfer(stream, conn, *buf1, *buf2)
 	if err != nil {
 		log.Println(err)

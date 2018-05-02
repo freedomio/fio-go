@@ -70,31 +70,17 @@ func (c *Client) runHttp() error {
 
 func (c *Client) handleConn(conn net.Conn) {
 	defer conn.Close()
-	buf1 := getPacketBuffer()
-	defer putPacketBuffer(buf1)
-	// err := defaultSocks5.handshake(conn, *buf1)
-	// if err != nil {
-	// 	log.Println(err)
-	// 	return
-	// }
-	// _, err = c.socks5.getAddr(conn, *buf1)
-	// if err != nil {
-	// 	log.Println(err)
-	// 	return
-	// }
-	// err = c.socks5.ok(conn)
-	// if err != nil {
-	// 	log.Println(err)
-	// 	return
-	// }
-	buf2 := getPacketBuffer()
-	defer putPacketBuffer(buf2)
 	stream, err := c.session.OpenStreamSync()
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	defer stream.Close()
+
+	buf1 := getPacketBuffer()
+	defer putPacketBuffer(buf1)
+	buf2 := getPacketBuffer()
+	defer putPacketBuffer(buf2)
 	err = defaultProxy.transfer(conn, stream, *buf1, *buf2)
 	if err != nil {
 		log.Println(err)

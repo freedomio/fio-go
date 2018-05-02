@@ -3,22 +3,21 @@ package fio
 import (
 	"net"
 
-	"github.com/lucas-clemente/quic-go"
-
 	"github.com/elazarl/goproxy"
+	"github.com/lucas-clemente/quic-go"
 	xproxy "golang.org/x/net/proxy"
 )
 
-type fakeStream struct {
+type fakeConn struct {
 	session quic.Session
 	quic.Stream
 }
 
-func (s *fakeStream) LocalAddr() net.Addr {
+func (s *fakeConn) LocalAddr() net.Addr {
 	return s.session.LocalAddr()
 }
 
-func (s *fakeStream) RemoteAddr() net.Addr {
+func (s *fakeConn) RemoteAddr() net.Addr {
 	return s.session.RemoteAddr()
 }
 
@@ -31,7 +30,7 @@ func (f *quicForward) Dial(network, addr string) (c net.Conn, err error) {
 	if err != nil {
 		return nil, err
 	}
-	return &fakeStream{
+	return &fakeConn{
 		session: f.session,
 		Stream:  stream,
 	}, nil
