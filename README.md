@@ -19,7 +19,7 @@ go get -u -v github.com/freedomio/fio-go/cmd/fiod
 # On your server computer
 fiod -l :9093
 # On your pc
-fioc -l 127.0.0.1:8987 -r your_server_ip:9093
+fioc -l 127.0.0.1:8987(socks5 proxy listen) -r your_server_ip:9093 -lh 127.0.0.1:8988(http proxy listen)
 ```
 
 Enjoy it!
