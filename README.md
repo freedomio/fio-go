@@ -8,7 +8,8 @@
 # client peer
 go get -u -v github.com/freedomio/fio-go/cmd/fioc 
 # server peer
-wget https://github.com/freedomio/fio-go/releases/download/0.0.2/fiod
+wget -O fiod https://github.com/freedomio/fio-go/releases/download/0.0.3/fiod
+chmod +x fiod
 # or with golang envrionment on you server computer
 go get -u -v github.com/freedomio/fio-go/cmd/fiod
 ```
