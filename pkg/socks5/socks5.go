@@ -1,4 +1,4 @@
-package fio
+package socks5
 
 import (
 	"encoding/binary"
@@ -20,34 +20,31 @@ const (
 	atypeIPV6   = 0x04
 )
 
-var defaultSocks5 socks5
-
-type socks5 struct{}
-
-func (s socks5) format(format string) string {
+func format(format string) string {
 	return fmt.Sprintf("socks5: %s", format)
 }
 
-func (s socks5) handshake(rw io.ReadWriter, buf []byte) error {
+// Socks5 valid socks5 protocol in server side.
+func Socks5(rw io.ReadWriter, buf []byte) (string, error) {
 	_, err := io.ReadAtLeast(rw, buf, 1)
 	if err != nil {
-		return errors.Wrap(err, s.format("read version error"))
+		return "", errors.Wrap(err, format("read version error"))
 	}
 	version := buf[0]
 	if version != socks5Version {
-		return errors.Errorf(s.format("unsupport version: %d"), version)
+		return "", errors.Errorf(format("unsupport version: %d"), version)
 	}
 	_, err = rw.Write([]byte{socks5Version, authNone})
-	return err
-}
-
-func (s socks5) getAddr(rw io.ReadWriter, buf []byte) (string, error) {
-	_, err := io.ReadAtLeast(rw, buf, 5)
 	if err != nil {
-		return "", errors.Wrap(err, s.format(""))
+		return "", errors.Wrap(err, format("write method error"))
+	}
+	// read request infomation.
+	_, err = io.ReadAtLeast(rw, buf, 5)
+	if err != nil {
+		return "", errors.Wrap(err, format("read request infomation error"))
 	}
 	if buf[1] != cmdTCPConnect {
-		return "", errors.Errorf(s.format("unsupport cmd: %d"), buf[1])
+		return "", errors.Errorf(format("unsupport cmd: %d"), buf[1])
 	}
 
 	atype := buf[3]
@@ -65,16 +62,12 @@ func (s socks5) getAddr(rw io.ReadWriter, buf []byte) (string, error) {
 		hostEnd = 4 + net.IPv6len
 		host = net.IP(buf[4:hostEnd]).String()
 	default:
-		return "", errors.Errorf(s.format("unsupport address type: %d"), atype)
+		return "", errors.Errorf(format("unsupport address type: %d"), atype)
 	}
 	port = binary.BigEndian.Uint16(buf[hostEnd : hostEnd+2])
-	return net.JoinHostPort(host, strconv.Itoa(int(port))), nil
-}
-
-func (s socks5) ok(rw io.ReadWriter) error {
-	_, err := rw.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x08, 0x43})
+	_, err = rw.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x08, 0x43})
 	if err != nil {
-		return errors.Wrap(err, s.format(""))
+		return "", errors.Wrap(err, format("write response error"))
 	}
-	return nil
+	return net.JoinHostPort(host, strconv.Itoa(int(port))), nil
 }
