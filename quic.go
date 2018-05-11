@@ -20,7 +20,7 @@ import (
 )
 
 var defaultQuicCfg = &quic.Config{
-	KeepAlive:                             true,
+	IdleTimeout:                           time.Minute * 10,
 	MaxIncomingStreams:                    65535,
 	MaxReceiveStreamFlowControlWindow:     100 * (1 << 20),
 	MaxReceiveConnectionFlowControlWindow: 1000 * (1 << 20),
